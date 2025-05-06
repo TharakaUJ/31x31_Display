@@ -1,6 +1,7 @@
 #include "webserve.h"
 #include "controllerEndpoints.h"
 #include "display.h"
+#include "game.h"
 #include <Arduino.h>
 
 
@@ -9,6 +10,8 @@ void setup() {
     setupWeb();
     setupDisplay();
     Serial.println("Setup complete");
+
+    setupSnakeGame();
 }
 
 
