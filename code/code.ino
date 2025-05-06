@@ -11,11 +11,15 @@ void setup() {
     setupDisplay();
     Serial.println("Setup complete");
 
+    delay(2000);
+    Serial.println("Starting game...");
+    delay(1000);
     setupSnakeGame();
 }
 
 
 void loop() {
-    Serial.println("Looping...");
-    delay(1000);
+    // Serial.println("Looping...");
+    // delay(5000);
+    // server.handleClient();
 }

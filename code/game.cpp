@@ -1,5 +1,5 @@
 #include "display.h"
-#include "control.h" // for commandFlags
+#include "controllerEndpoints.h" // for commandFlags
 #include <vector>
 
 enum Direction
@@ -58,7 +58,6 @@ void updateDirection()
 
 void drawSnake()
 {
-    clearFrame();
     for (auto &s : snake)
         framebuffer[s.x][s.y] = CRGB::Green;
     framebuffer[food.x][food.y] = CRGB::Red;
@@ -132,14 +131,14 @@ void runSnakeGame()
         {
             gameTick();
         }
-        else
-        {
-            // Show game over visual
-            for (int i = 0; i < WIDTH; i++)
-                for (int j = 0; j < HEIGHT; j++)
-                    framebuffer[i][j] = CRGB::Red;
-        }
-        vTaskDelay(pdMS_TO_TICKS(150)); // Game speed
+        // else
+        // {
+        //     // Show game over visual
+        //     for (int i = 0; i < WIDTH; i++)
+        //         for (int j = 0; j < HEIGHT; j++)
+        //             framebuffer[i][j] = CRGB::Red;
+        // }
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Game speed
     }
 }
 

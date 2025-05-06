@@ -3,8 +3,6 @@
 #include "webserve.h"
 #include "controllerEndpoints.h"
 #include "display.h"
-#include <string>
-
 
 WebServer server(80);
 
@@ -63,85 +61,117 @@ void handleRoot()
     )rawliteral");
 }
 
-void handleUp() {
+void handleUp()
+{
     server.send(200, "text/plain", "Up");
     up();
 }
 
-void handleDown() {
+void handleDown()
+{
     server.send(200, "text/plain", "Down");
     down();
 }
 
-void handleLeft() {
+void handleLeft()
+{
     server.send(200, "text/plain", "Left");
     left();
 }
 
-void handleRight() {
+void handleRight()
+{
     server.send(200, "text/plain", "Right");
     right();
 }
 
-void handleSimulate() {
+void handleSimulate()
+{
+    Serial.print("simulate");
+
     std::string response = R"rawliteral(
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Frame Buffer</title>
-            <style>
-                .grid {
-                    display: grid;
-                    grid-template-columns: repeat(31, 20px);
-                    grid-gap: 1px;
-                }
-                .cell {
-                    width: 20px;
-                    height: 20px;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Frame Buffer Display</h1>
-            <div class="grid">
-    )rawliteral";
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LED Simulator</title>
+    <style>
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <h1>LED Matrix Simulation</h1>
+    <canvas id="matrix" width="620" height="620"></canvas>
 
-    for (int y = 0; y < 31; ++y) {
-        for (int x = 0; x < 31; ++x) {
-            char cell[128];
-            CRGB color = framebuffer[y][x];
-            snprintf(cell, sizeof(cell), 
-                     R"rawliteral(<div class="cell" style="background-color: #%06X;"></div>)rawliteral", 
-                     color & 0xFFFFFF); // Assuming color is in 0xRRGGBB format
-            response += cell;
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        const cellSize = 20;
+
+        function draw() {
+            fetch('/framebuffer')
+                .then(res => res.json())
+                .then(data => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    data.forEach(pixel => {
+                        ctx.fillStyle = `rgb(${pixel.r},${pixel.g},${pixel.b})`;
+                        ctx.fillRect(pixel.x * cellSize, pixel.y * cellSize, cellSize, cellSize);
+                    });
+                });
         }
-    }
 
-    response += R"rawliteral(
-            </div>
-        </body>
-        </html>
-    )rawliteral";
+        setInterval(draw, 100); // 10 FPS
+    </script>
+</body>
+</html>
+)rawliteral";
 
     server.send(200, "text/html", response.c_str());
 }
 
+void handleFramebuffer()
+{
+    String json = "[";
+    for (int y = 0; y < 31; y++)
+    {
+        for (int x = 0; x < 31; x++)
+        {
+            CRGB color = framebuffer[x][y];
+            json += String("{\"x\":") + x + ",\"y\":" + y +
+                    ",\"r\":" + color.r + ",\"g\":" + color.g +
+                    ",\"b\":" + color.b + "},";
+        }
+    }
+    if (json.endsWith(","))
+        json.remove(json.length() - 1); // remove trailing comma
+    json += "]";
+    server.send(200, "application/json", json);
+}
+
 void setupWeb()
 {
-    Serial.begin(115200);
 
-    // Connect to external Wi-Fi network
-    const char *ssid = "Disconnected";
-    const char *password = "whybother";
+    // // Connect to external Wi-Fi network
+    // const char *ssid = "Disconnected";
+    // const char *password = "whybother";
 
-    WiFi.begin(ssid, password);
+    // WiFi.begin(ssid, password);
+
+    // Create an access point
+    const char *ssid = "ESP32_AP";
+    const char *password = "12345678";
+
+    WiFi.softAP(ssid, password);
+
+    // Enable low power mode
+    WiFi.setSleep(true);
+    WiFi.setTxPower(WIFI_POWER_MINUS_1dBm); // Options: 19.5, 15, 11, 8.5, 7, 5, 2, -1 (WIFI_POWER_MINUS_1dBm) dBm
 
     // Wait for connection
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(1000);
-        Serial.println("Connecting to WiFi...");
-    }
+    // while (WiFi.status() != WL_CONNECTED)
+    // {
+    //     delay(1000);
+    //     Serial.println("Connecting to WiFi...");
+    // }
 
     Serial.println("Connected to WiFi");
 
@@ -154,13 +184,13 @@ void setupWeb()
     // Web server setup
     server.on("/", handleRoot);
     server.on("/simulate", handleSimulate);
+    server.on("/framebuffer", handleFramebuffer);
     server.on("/up", handleUp);
     server.on("/down", handleDown);
     server.on("/left", handleLeft);
     server.on("/right", handleRight);
-    server.onNotFound([]() {
-        server.send(404, "text/plain", "404: Not Found-This is the esp32 web server");
-    });
+    server.onNotFound([]()
+                      { server.send(404, "text/plain", "404: Not Found-This is the esp32 web server"); });
     server.begin();
 
     Serial.println("HTTP server started");
@@ -176,7 +206,8 @@ void loopWeb()
     if (serverTaskHandle == NULL)
     {
         xTaskCreate(
-            [](void *param) {
+            [](void *param)
+            {
                 for (;;)
                 {
                     server.handleClient();
@@ -186,7 +217,7 @@ void loopWeb()
             "WebServerTask",
             4096, // Stack size
             NULL,
-            1,    // Priority
+            1, // Priority
             &serverTaskHandle);
     }
 }
