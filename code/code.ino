@@ -13,7 +13,6 @@ void setup() {
 
 
 void loop() {
-    // Call the web server loop function
     Serial.println("Looping...");
     delay(1000);
 }

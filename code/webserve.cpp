@@ -2,6 +2,9 @@
 #include <WiFi.h>
 #include "webserve.h"
 #include "controllerEndpoints.h"
+#include "display.h"
+#include <string>
+
 
 WebServer server(80);
 
@@ -80,6 +83,49 @@ void handleRight() {
     right();
 }
 
+void handleSimulate() {
+    std::string response = R"rawliteral(
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Frame Buffer</title>
+            <style>
+                .grid {
+                    display: grid;
+                    grid-template-columns: repeat(31, 20px);
+                    grid-gap: 1px;
+                }
+                .cell {
+                    width: 20px;
+                    height: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Frame Buffer Display</h1>
+            <div class="grid">
+    )rawliteral";
+
+    for (int y = 0; y < 31; ++y) {
+        for (int x = 0; x < 31; ++x) {
+            char cell[128];
+            CRGB color = framebuffer[y][x];
+            snprintf(cell, sizeof(cell), 
+                     R"rawliteral(<div class="cell" style="background-color: #%06X;"></div>)rawliteral", 
+                     color & 0xFFFFFF); // Assuming color is in 0xRRGGBB format
+            response += cell;
+        }
+    }
+
+    response += R"rawliteral(
+            </div>
+        </body>
+        </html>
+    )rawliteral";
+
+    server.send(200, "text/html", response.c_str());
+}
+
 void setupWeb()
 {
     Serial.begin(115200);
@@ -107,6 +153,7 @@ void setupWeb()
 
     // Web server setup
     server.on("/", handleRoot);
+    server.on("/simulate", handleSimulate);
     server.on("/up", handleUp);
     server.on("/down", handleDown);
     server.on("/left", handleLeft);
