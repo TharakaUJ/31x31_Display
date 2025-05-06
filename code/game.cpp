@@ -20,6 +20,17 @@ Point food;
 Direction dir = RIGHT;
 bool gameOver = false;
 
+void clearFramebuffer()
+{
+    for (int x = 0; x < WIDTH; x++)
+    {
+        for (int y = 0; y < HEIGHT; y++)
+        {
+            framebuffer[x][y] = CRGB::Black;
+        }
+    }
+}
+
 void spawnFood()
 {
     while (true)
@@ -58,6 +69,7 @@ void updateDirection()
 
 void drawSnake()
 {
+    clearFramebuffer();
     for (auto &s : snake)
         framebuffer[s.x][s.y] = CRGB::Green;
     framebuffer[food.x][food.y] = CRGB::Red;
