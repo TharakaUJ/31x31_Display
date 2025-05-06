@@ -3,6 +3,7 @@
 #include "webserve.h"
 #include "controllerEndpoints.h"
 #include "display.h"
+#include <sstream>
 
 WebServer server(80);
 
