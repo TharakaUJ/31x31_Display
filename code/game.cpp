@@ -102,9 +102,16 @@ void gameTick()
         break;
     }
 
-    // Check collision
-    if (newHead.x < 0 || newHead.x >= WIDTH || newHead.y < 0 || newHead.y >= HEIGHT)
-        gameOver = true;
+    // Wrap-around logic
+    if (newHead.x < 0)
+        newHead.x = WIDTH - 1;
+    else if (newHead.x >= WIDTH)
+        newHead.x = 0;
+
+    if (newHead.y < 0)
+        newHead.y = HEIGHT - 1;
+    else if (newHead.y >= HEIGHT)
+        newHead.y = 0;
 
     for (auto &s : snake)
     {
