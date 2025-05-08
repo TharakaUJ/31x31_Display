@@ -1,5 +1,6 @@
 #include "display.h"
-#include "controllerEndpoints.h" // for commandFlags
+#include "controllerEndpoints.h"
+#include "displayNumbers.h"
 #include <vector>
 
 enum Direction
@@ -19,6 +20,7 @@ std::vector<Point> snake;
 Point food;
 Direction dir = RIGHT;
 bool gameOver = false;
+int score = 0;
 
 void clearFramebuffer()
 {
@@ -102,17 +104,25 @@ void gameTick()
         break;
     }
 
-    // Wrap-around logic
-    if (newHead.x < 0)
-        newHead.x = WIDTH - 1;
-    else if (newHead.x >= WIDTH)
-        newHead.x = 0;
+    // // Wrap-around logic
+    // if (newHead.x < 0)
+    //     newHead.x = WIDTH - 1;
+    // else if (newHead.x >= WIDTH)
+    //     newHead.x = 0;
 
-    if (newHead.y < 0)
-        newHead.y = HEIGHT - 1;
-    else if (newHead.y >= HEIGHT)
-        newHead.y = 0;
+    // if (newHead.y < 0)
+    //     newHead.y = HEIGHT - 1;
+    // else if (newHead.y >= HEIGHT)
+    //     newHead.y = 0;
 
+    // Check for wall collision
+    if (newHead.x < 0 || newHead.x >= WIDTH || newHead.y < 0 || newHead.y >= HEIGHT)
+    {
+        gameOver = true;
+        return;
+    }
+
+    // Check for self-collision
     for (auto &s : snake)
     {
         if (s.x == newHead.x && s.y == newHead.y)
@@ -128,6 +138,9 @@ void gameTick()
     if (newHead.x == food.x && newHead.y == food.y)
     {
         spawnFood(); // Grow
+        score++;
+        if (score > 99)
+            score = 99; // Limit score to 2 digits
     }
     else
     {
@@ -150,14 +163,17 @@ void runSnakeGame()
         {
             gameTick();
         }
-        // else
-        // {
-        //     // Show game over visual
-        //     for (int i = 0; i < WIDTH; i++)
-        //         for (int j = 0; j < HEIGHT; j++)
-        //             framebuffer[i][j] = CRGB::Red;
-        // }
-        vTaskDelay(pdMS_TO_TICKS(2000)); // Game speed
+        else
+        {
+            // Show game over visual
+            for (int i = 0; i < WIDTH; i++)
+                for (int j = 0; j < HEIGHT; j++)
+                    framebuffer[i][j] = CRGB::Red;
+
+            // Display score
+            drawCenteredTwoDigitNumber(score, CRGB::White);
+        }
+        vTaskDelay(pdMS_TO_TICKS(500 - score * 20)); // Game speed
     }
 }
 
