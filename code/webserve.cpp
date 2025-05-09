@@ -157,6 +157,15 @@ void setupWeb()
 
     // WiFi.begin(ssid, password);
 
+    // // Wait for connection
+    // while (WiFi.status() != WL_CONNECTED)
+    // {
+    //     delay(1000);
+    //     Serial.println("Connecting to WiFi...");
+    // }
+
+    // Serial.println("Connected to WiFi");
+
     // Create an access point
     const char *ssid = "ESP32_AP";
     const char *password = "12345678";
@@ -166,15 +175,6 @@ void setupWeb()
     // Enable low power mode
     WiFi.setSleep(true);
     WiFi.setTxPower(WIFI_POWER_MINUS_1dBm); // Options: 19.5, 15, 11, 8.5, 7, 5, 2, -1 (WIFI_POWER_MINUS_1dBm) dBm
-
-    // Wait for connection
-    // while (WiFi.status() != WL_CONNECTED)
-    // {
-    //     delay(1000);
-    //     Serial.println("Connecting to WiFi...");
-    // }
-
-    Serial.println("Connected to WiFi");
 
     Serial.print("Access Point \"");
     Serial.print(ssid);
