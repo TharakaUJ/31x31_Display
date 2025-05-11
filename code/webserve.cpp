@@ -3,63 +3,14 @@
 #include "webserve.h"
 #include "controllerEndpoints.h"
 #include "display.h"
+#include "htmlFiles.h"
 #include <sstream>
 
 WebServer server(80);
 
 void handleRoot()
 {
-    server.send(200, "text/html", R"rawliteral(
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>ESP32 Control</title>
-            <style>
-                body {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    height: 100vh;
-                    background-color: lightblue;
-                    margin: 0;
-                }
-                .button-container {
-                    display: grid;
-                    grid-template-columns: 100px;
-                    grid-template-rows: 100px 100px 100px;
-                    gap: 10px;
-                }
-                button {
-                    width: 100px;
-                    height: 100px;
-                    font-size: 20px;
-                    cursor: pointer;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>ESP32 Control Panel</h1>
-            <div class="button-container">
-                <button onclick="sendRequest('/up')">Up</button>
-                <button onclick="sendRequest('/left')">Left</button>
-                <button onclick="sendRequest('/right')">Right</button>
-                <button onclick="sendRequest('/down')">Down</button>
-            </div>
-            <script>
-                function sendRequest(endpoint) {
-                    fetch(endpoint).then(response => {
-                        if (response.ok) {
-                            console.log(endpoint + " request successful");
-                        } else {
-                            console.error(endpoint + " request failed");
-                        }
-                    }).catch(error => console.error("Error:", error));
-                }
-            </script>
-        </body>
-        </html>
-    )rawliteral");
+    server.send(200, "text/html", root);
 }
 
 void handleUp()
@@ -86,45 +37,23 @@ void handleRight()
     right();
 }
 
+void handleSelect()
+{
+    server.send(200, "text/plain", "Select");
+    select();
+}
+
+void handleBack()
+{
+    server.send(200, "text/plain", "Back");
+    back();
+}
+
 void handleSimulate()
 {
     Serial.print("simulate");
 
-    std::string response = R"rawliteral(
-<!DOCTYPE html>
-<html>
-<head>
-    <title>LED Simulator</title>
-    <style>
-        canvas { border: 1px solid black; }
-    </style>
-</head>
-<body>
-    <h1>LED Matrix Simulation</h1>
-    <canvas id="matrix" width="620" height="620"></canvas>
-
-    <script>
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
-        const cellSize = 20;
-
-        function draw() {
-            fetch('/framebuffer')
-                .then(res => res.json())
-                .then(data => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    data.forEach(pixel => {
-                        ctx.fillStyle = `rgb(${pixel.r},${pixel.g},${pixel.b})`;
-                        ctx.fillRect(pixel.x * cellSize, pixel.y * cellSize, cellSize, cellSize);
-                    });
-                });
-        }
-
-        setInterval(draw, 100); // 10 FPS
-    </script>
-</body>
-</html>
-)rawliteral";
+    std::string response = simulate;
 
     server.send(200, "text/html", response.c_str());
 }
