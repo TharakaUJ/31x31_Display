@@ -104,23 +104,23 @@ void gameTick()
         break;
     }
 
-    // // Wrap-around logic
-    // if (newHead.x < 0)
-    //     newHead.x = WIDTH - 1;
-    // else if (newHead.x >= WIDTH)
-    //     newHead.x = 0;
+    // Wrap-around logic
+    if (newHead.x < 0)
+        newHead.x = WIDTH - 1;
+    else if (newHead.x >= WIDTH)
+        newHead.x = 0;
 
-    // if (newHead.y < 0)
-    //     newHead.y = HEIGHT - 1;
-    // else if (newHead.y >= HEIGHT)
-    //     newHead.y = 0;
+    if (newHead.y < 0)
+        newHead.y = HEIGHT - 1;
+    else if (newHead.y >= HEIGHT)
+        newHead.y = 0;
 
-    // Check for wall collision
-    if (newHead.x < 0 || newHead.x >= WIDTH || newHead.y < 0 || newHead.y >= HEIGHT)
-    {
-        gameOver = true;
-        return;
-    }
+    // // Check for wall collision
+    // if (newHead.x < 0 || newHead.x >= WIDTH || newHead.y < 0 || newHead.y >= HEIGHT)
+    // {
+    //     gameOver = true;
+    //     return;
+    // }
 
     // Check for self-collision
     for (auto &s : snake)
@@ -173,7 +173,7 @@ void runSnakeGame()
             // Display score
             drawCenteredTwoDigitNumber(score, CRGB::White);
         }
-        vTaskDelay(pdMS_TO_TICKS(500 - score * 20)); // Game speed
+        vTaskDelay(pdMS_TO_TICKS(std::max(100, 500 - score * 20))); // Game speed constrained to 100
     }
 }
 
