@@ -43,11 +43,17 @@ void drawFrame()
 
 void spawnEnemyRow()
 {
-    for (int x = 2; x < WIDTH - 2; x += 3)
+    for (int x = 1; x < WIDTH - 1; x += 6)
     {
-        if (rand() % 2 == 0)
-        { // 50% chance to spawn an enemy at this position
-            enemies.push_back(Point{x, 0});
+        if (rand() % 3 == 0) // ~33% chance per slot
+        {
+            // Add some randomness to horizontal placement too
+            int offset = (rand() % 3) - 1; // -1, 0, or +1
+            int posX = x + offset;
+            if (posX >= 0 && posX < WIDTH)
+            {
+                enemies.push_back(Point{posX, 0});
+            }
         }
     }
 }
