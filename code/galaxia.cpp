@@ -43,19 +43,8 @@ void drawFrame()
 
 void spawnEnemyRow()
 {
-    for (int x = 1; x < WIDTH - 1; x += 6)
-    {
-        if (rand() % 3 == 0) // ~33% chance per slot
-        {
-            // Add some randomness to horizontal placement too
-            int offset = (rand() % 3) - 1; // -1, 0, or +1
-            int posX = x + offset;
-            if (posX >= 0 && posX < WIDTH)
-            {
-                enemies.push_back(Point{posX, 0});
-            }
-        }
-    }
+    int x = 2 + rand() % (WIDTH - 4); // Ensure spacing from edges
+    enemies.push_back(Point{x, 0});
 }
 
 void moveBullets()
