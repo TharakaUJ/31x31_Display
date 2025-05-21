@@ -1,4 +1,3 @@
-// common/pixel.h
 #pragma once
 
 #ifdef ESP32

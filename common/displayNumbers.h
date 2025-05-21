@@ -1,6 +1,6 @@
 #pragma once
 
-#include <FastLED.h>
+#include "pixel.h"
 
-void drawCenteredTwoDigitNumber(int value, CRGB color = CRGB::Blue);
-void drawDigit(int digit, int startX, int startY, CRGB color);
+void drawCenteredTwoDigitNumber(int value, Pixel color = Pixel{0, 0, 255});
+void drawDigit(int digit, int startX, int startY, Pixel color);

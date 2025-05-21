@@ -1,5 +1,7 @@
-#include "display.h"
+#include "pixel.h"
 #include "displayNumbers.h"
+#include <cstdint>
+#include <algorithm>
 
 const uint8_t digitFont[10][7] = {
     {0b01110, 0b10001, 0b10011, 0b10101, 0b11001, 0b10001, 0b01110}, // 0
@@ -14,7 +16,7 @@ const uint8_t digitFont[10][7] = {
     {0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100}  // 9
 };
 
-void drawDigit(int digit, int startX, int startY, CRGB color) {
+void drawDigit(int digit, int startX, int startY, Pixel color) {
     for (int y = 0; y < 7; ++y) {
         uint8_t row = digitFont[digit][y];
         for (int x = 0; x < 5; ++x) {
@@ -28,8 +30,8 @@ void drawDigit(int digit, int startX, int startY, CRGB color) {
     }
 }
 
-void drawCenteredTwoDigitNumber(int value, CRGB color) {
-    value = constrain(value, 0, 99);
+void drawCenteredTwoDigitNumber(int value, Pixel color) {
+    value = std::clamp(value, static_cast<decltype(value)>(0), static_cast<decltype(value)>(99));
     int tens = value / 10;
     int units = value % 10;
 
