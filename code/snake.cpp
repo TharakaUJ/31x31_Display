@@ -1,6 +1,7 @@
 #include "display.h"
 #include "controllerEndpoints.h"
 #include "displayNumbers.h"
+#include "menu.h"
 #include <vector>
 
 enum Direction
@@ -21,8 +22,6 @@ Point food;
 Direction dir = RIGHT;
 bool gameOver = false;
 int score = 0;
-
-
 
 void spawnFood()
 {
@@ -150,6 +149,14 @@ void runSnakeGame()
 
     while (true)
     {
+        if (commandFlags[CMD_BACK])
+        {
+            commandFlags[CMD_BACK] = false;
+            menu_init();
+            vTaskDelete(NULL);
+            return;
+        }
+
         if (!gameOver)
         {
             gameTick();

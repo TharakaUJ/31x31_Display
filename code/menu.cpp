@@ -6,12 +6,13 @@
 #include "display.h"
 #include "tetris.h"
 
-void menu_init()
+void menu_loop()
 {
     int gameId = 0;
     int gameCount = 3;
 
     // Initialize menu items
+    clearFramebuffer();
     drawCenteredTwoDigitNumber(gameId, CRGB::White);
 
     while (true)
@@ -39,20 +40,32 @@ void menu_init()
             switch (gameId)
             {
             case 0:
-                // Start Snake Game
                 setupSnakeGame();
+                vTaskDelete(NULL);
                 break;
             case 1:
                 setupGalaxiaGame();
+                vTaskDelete(NULL);
                 break;
             case 2:
-                // Start Tetris Game
                 setupTetrisGame();
+                vTaskDelete(NULL);
                 break;
             default:
                 break;
             }
             break;
         }
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
+}
+
+void menu_init()
+{
+    xTaskCreatePinnedToCore(
+        [](void *)
+        {
+            menu_loop();
+        },
+        "menu_loop", 4096, NULL, 1, NULL, 1);
 }

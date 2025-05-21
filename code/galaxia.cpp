@@ -3,6 +3,7 @@
 #include "displayNumbers.h"
 #include <vector>
 #include "galaxia.h"
+#include "menu.h"
 #include <cstdlib>
 
 struct Point
@@ -139,7 +140,9 @@ void runGalaxiaGame()
         if (commandFlags[CMD_BACK])
         {
             commandFlags[CMD_BACK] = false;
-            return; // Exit game loop back to menu
+            menu_init();
+            vTaskDelete(NULL);
+            return;
         }
 
         if (!gameOverGalaxia)

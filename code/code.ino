@@ -15,10 +15,6 @@ void setup()
     Serial.println("Starting game...");
     delay(1000);
     menu_init();
-
-    framebuffer[0][0] = CRGB::Red;
-    framebuffer[1][1] = CRGB::Green;
-    framebuffer[2][2] = CRGB::Blue;
 }
 
 void loop()
