@@ -3,6 +3,7 @@
 #include "controllerEndpoints.h"
 #include "snake.h"
 #include "galaxia.h"
+#include "display.h"
 
 void menu_init()
 {
@@ -19,12 +20,14 @@ void menu_init()
         {
             gameId = (gameId - 1 + gameCount) % gameCount;
             commandFlags[CMD_UP] = false; // Reset command flag
+            clearFramebuffer();
             drawCenteredTwoDigitNumber(gameId, CRGB::Red);
         }
         if (commandFlags[CMD_DOWN])
         {
             gameId = (gameId + 1) % gameCount;
             commandFlags[CMD_DOWN] = false; // Reset command flag
+            clearFramebuffer();
             drawCenteredTwoDigitNumber(gameId, CRGB::Red);
         }
         if (commandFlags[CMD_SELECT])
