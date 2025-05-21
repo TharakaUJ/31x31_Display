@@ -1,41 +1,40 @@
 #include "controllerEndpoints.h"
-#include <Arduino.h>
-
+#include "utils.h"
 
 volatile bool commandFlags[CMD_COUNT] = { false };
 
 void up()
 {
-    Serial.println("Up");
+    printInfo("Up");
     commandFlags[CMD_UP] = true;
 }
 
 void down()
 {
-    Serial.println("Down");
+    printInfo("Down");
     commandFlags[CMD_DOWN] = true;
 }
 
 void left()
 {
-    Serial.println("Left");
+    printInfo("Left");
     commandFlags[CMD_LEFT] = true;
 }
 
 void right()
 {
-    Serial.println("Right");
+    printInfo("Right");
     commandFlags[CMD_RIGHT] = true;
 }
 
 void select()
 {
-    Serial.println("Select");
+    printInfo("Select");
     commandFlags[CMD_SELECT] = true;
 }
 
 void back()
 {
-    Serial.println("Back");
+    printInfo("Back");
     commandFlags[CMD_BACK] = true;
 }

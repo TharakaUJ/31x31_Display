@@ -1,7 +1,7 @@
-#include "display.h"
-#include "controllerEndpoints.h"
-#include "displayNumbers.h"
+#include "../common/controllerEndpoints.h"
+#include "../common/displayNumbers.h"
 #include <vector>
+#include "../common/pixel.h"
 
 enum Direction
 {
@@ -28,7 +28,7 @@ void clearFramebuffer()
     {
         for (int y = 0; y < HEIGHT; y++)
         {
-            framebuffer[x][y] = CRGB::Black;
+            framebuffer[x][y] = Pixel{0, 0, 0};
         }
     }
 }
@@ -73,8 +73,8 @@ void drawSnake()
 {
     clearFramebuffer();
     for (auto &s : snake)
-        framebuffer[s.x][s.y] = CRGB::Green;
-    framebuffer[food.x][food.y] = CRGB::Red;
+        framebuffer[s.x][s.y] = Pixel{0, 255, 0}; // Green
+    framebuffer[food.x][food.y] = Pixel{255, 0, 0}; // Red
 }
 
 void gameTick()
@@ -168,10 +168,10 @@ void runSnakeGame()
             // Show game over visual
             for (int i = 0; i < WIDTH; i++)
                 for (int j = 0; j < HEIGHT; j++)
-                    framebuffer[i][j] = CRGB::Red;
+                    framebuffer[i][j] = Pixel{0, 0, 0}; // Red
 
             // Display score
-            drawCenteredTwoDigitNumber(score, CRGB::White);
+            drawCenteredTwoDigitNumber(score, Pixel{255, 255, 255}); // Red
         }
         vTaskDelay(pdMS_TO_TICKS(std::max(100, 500 - score * 20))); // Game speed constrained to 100
     }
