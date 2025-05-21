@@ -22,16 +22,7 @@ Direction dir = RIGHT;
 bool gameOver = false;
 int score = 0;
 
-void clearFramebuffer()
-{
-    for (int x = 0; x < WIDTH; x++)
-    {
-        for (int y = 0; y < HEIGHT; y++)
-        {
-            framebuffer[x][y] = CRGB::Black;
-        }
-    }
-}
+
 
 void spawnFood()
 {

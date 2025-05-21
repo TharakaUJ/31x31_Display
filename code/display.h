@@ -11,3 +11,4 @@ extern CRGB framebuffer[WIDTH][HEIGHT];
 void initDisplay();
 void renderFrameToLEDs();
 void setupDisplay();
+void clearFramebuffer();

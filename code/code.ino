@@ -1,11 +1,11 @@
 #include "webserve.h"
 #include "controllerEndpoints.h"
 #include "display.h"
-#include "game.h"
 #include <Arduino.h>
+#include "menu.h"
 
-
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     setupWeb();
     setupDisplay();
@@ -14,11 +14,11 @@ void setup() {
     delay(2000);
     Serial.println("Starting game...");
     delay(1000);
-    setupSnakeGame();
+    menu_init();
 }
 
-
-void loop() {
+void loop()
+{
     // Serial.println("Looping...");
     // delay(5000);
     // server.handleClient();

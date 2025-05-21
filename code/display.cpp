@@ -51,3 +51,15 @@ void setupDisplay()
         },
         "DisplayTask", 2048, NULL, 1, NULL, 1);
 }
+
+
+void clearFramebuffer()
+{
+    for (int x = 0; x < WIDTH; x++)
+    {
+        for (int y = 0; y < HEIGHT; y++)
+        {
+            framebuffer[x][y] = CRGB::Black;
+        }
+    }
+}

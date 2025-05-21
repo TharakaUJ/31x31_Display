@@ -119,6 +119,9 @@ void setupWeb()
     server.on("/down", handleDown);
     server.on("/left", handleLeft);
     server.on("/right", handleRight);
+    server.on("/select", handleSelect);
+    server.on("/back", handleBack);
+    server.on("/center", handleSelect);
     server.onNotFound([]()
                       { server.send(404, "text/plain", "404: Not Found-This is the esp32 web server"); });
     server.begin();
