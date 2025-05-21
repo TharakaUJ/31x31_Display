@@ -4,7 +4,7 @@
 #define WIDTH 31
 #define HEIGHT 31
 #define NUM_LEDS (WIDTH * HEIGHT)
-#define DATA_PIN 4
+#define DATA_PIN 5
 
 extern CRGB framebuffer[WIDTH][HEIGHT];
 

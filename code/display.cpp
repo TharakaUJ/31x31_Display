@@ -28,7 +28,9 @@ void renderFrameToLEDs()
     {
         for (int y = 0; y < HEIGHT; y++)
         {
-            int index = getLEDIndex(x, y);
+            int flippedY = HEIGHT - 1 - y; // Flip vertically
+            int flippedX = WIDTH - 1 - x; // Flip horizontally
+            int index = getLEDIndex(flippedX, flippedY);
             leds[index] = framebuffer[x][y];
         }
     }
@@ -51,7 +53,6 @@ void setupDisplay()
         },
         "DisplayTask", 2048, NULL, 1, NULL, 1);
 }
-
 
 void clearFramebuffer()
 {
