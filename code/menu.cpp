@@ -4,11 +4,12 @@
 #include "snake.h"
 #include "galaxia.h"
 #include "display.h"
+#include "tetris.h"
 
 void menu_init()
 {
     int gameId = 0;
-    int gameCount = 2;
+    int gameCount = 3;
 
     // Initialize menu items
     drawCenteredTwoDigitNumber(gameId, CRGB::White);
@@ -43,6 +44,10 @@ void menu_init()
                 break;
             case 1:
                 setupGalaxiaGame();
+                break;
+            case 2:
+                // Start Tetris Game
+                setupTetrisGame();
                 break;
             default:
                 break;
