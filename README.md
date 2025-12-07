@@ -101,9 +101,9 @@ Each flag is a `bool`, reset after being read.
 
 ## 🛠️ To Do
 
-- Add menu system for selecting multiple games.
-- Implement score display using the number renderer.
-- Add more games (e.g., Tetris, Pong).
+- ~~Add menu system for selecting multiple games.~~
+- ~~Implement score display using the number renderer.~~
+- Add more games (e.g., Pong, Space Invaders).
 - Improve simulator with live updates or WebSocket.
 
 ---
