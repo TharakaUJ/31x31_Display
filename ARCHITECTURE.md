@@ -74,6 +74,6 @@ To add support for a new device (e.g., Raspberry Pi):
 
 ## Notes
 
-- Symbolic links are used to share common code without duplication
+- Common files are copied to device directories during the build setup process to share code without duplication
 - Each device implementation can have its own build system
 - Games are self-contained and don't depend on device-specific code
