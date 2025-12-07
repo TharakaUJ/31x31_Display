@@ -27,8 +27,22 @@ upload: compile
 setup:
 	@echo "Setting up ESP32 directory..."
 	@echo "Copying common files..."
-	@cp -f ../common/*.cpp ../common/*.h .
-	@cp -f ../common/games/*.cpp ../common/games/*.h .
+	@for f in ../common/*.cpp ../common/*.h; do \
+	   dest="./$$(basename $$f)"; \
+	   if [ -e "$$dest" ] && [ "$$dest" -nt "$$f" ]; then \
+	     echo "Warning: $$dest has been modified locally and is newer than $$f. Skipping copy."; \
+	   else \
+	     cp "$$f" .; \
+	   fi; \
+	 done
+	@for f in ../common/games/*.cpp ../common/games/*.h; do \
+	   dest="./$$(basename $$f)"; \
+	   if [ -e "$$dest" ] && [ "$$dest" -nt "$$f" ]; then \
+	     echo "Warning: $$dest has been modified locally and is newer than $$f. Skipping copy."; \
+	   else \
+	     cp "$$f" .; \
+	   fi; \
+	 done
 	@echo "Setup complete!"
 
 clean-links:
