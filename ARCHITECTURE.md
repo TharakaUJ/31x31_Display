@@ -53,16 +53,7 @@ To add support for a new device (e.g., Raspberry Pi):
 
 1. Create a new directory: `mkdir rpi/`
 2. Implement device-specific files (input handling, display driver)
-3. Create symbolic links to common code:
-   ```bash
-   cd rpi/
-   ln -s ../common/display.* .
-   ln -s ../common/menu.* .
-   ln -s ../common/displayNumbers.* .
-   ln -s ../common/games/*.cpp .
-   ln -s ../common/games/*.h .
-   ```
-4. Create a device-specific Makefile or build configuration
+3. Create a device-specific Makefile or build configuration
 
 ## Code Organization
 
