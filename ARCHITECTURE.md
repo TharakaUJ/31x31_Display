@@ -17,8 +17,7 @@
 │   ├── webserve.cpp/h       # Web server for WiFi control
 │   ├── controllerEndpoints.cpp/h  # Input handling
 │   ├── htmlFiles.h          # Web UI assets
-│   ├── Makefile             # Build automation
-│   └── [symlinks to common/] # Links to shared code
+│   └── Makefile             # Build automation
 └── pc/                       # PC simulator (future)
 ```
 
