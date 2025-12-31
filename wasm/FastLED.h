@@ -52,6 +52,16 @@ struct CRGB {
             default: r = val; g = p; b = q; break;
         }
     }
+    
+    // Static color members (for syntax compatibility)
+    static CRGB Black;
+    static CRGB White;
+    static CRGB Red;
+    static CRGB Green;
+    static CRGB Blue;
+    static CRGB Yellow;
+    static CRGB Cyan;
+    static CRGB Magenta;
 };
 
 // Common color definitions

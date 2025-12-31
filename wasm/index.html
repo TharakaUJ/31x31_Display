@@ -113,10 +113,14 @@
             <button class="btn" id="back">BACK</button>
         </div>
         
-        <div id="status" class="loading">Loading WASM module...</div>
+        <div id="status" class="loading">Press SPACE to start...</div>
         
         <div id="info">
-            Use arrow keys or click buttons to control
+            <strong>How to Play:</strong><br>
+            1. Press <strong>SPACE</strong> to initialize<br>
+            2. Use <strong>↑/↓ Arrow Keys</strong> to select a game number (0=Snake, 1=Galaxia, 2=Tetris)<br>
+            3. Press <strong>ENTER</strong> or <strong>SEL</strong> to start the game<br>
+            4. Use <strong>Arrow Keys</strong> to control | <strong>ESC</strong> or <strong>BACK</strong> to return to menu
         </div>
     </div>
 
@@ -127,63 +131,106 @@
         const status = document.getElementById('status');
         
         let module = null;
-        let framebufferPtr = null;
-        let width = 31;
-        let height = 31;
+        let initialized = false;
+        let framebufferPtr = 0;
+        let width = 0;
+        let height = 0;
         let pixelSize = 20;
         
         // Initialize the WASM module
         DisplayModule().then((Module) => {
             module = Module;
             
-            // Call setup
-            module.setup();
+            // Wrap C functions
+            const setup = module.cwrap('menu', null, []);
+            const loop = module.cwrap('loop', null, []);
+            const getFramebufferPointer = module.cwrap('getFramebufferPointer', 'number', []);
+            const getWidth = module.cwrap('getWidth', 'number', []);
+            const getHeight = module.cwrap('getHeight', 'number', []);
             
-            // Get framebuffer information
-            framebufferPtr = module.getFramebufferPointer();
-            width = module.getWidth();
-            height = module.getHeight();
+            module.handleUp = module.cwrap('handleUp', null, []);
+            module.handleDown = module.cwrap('handleDown', null, []);
+            module.handleLeft = module.cwrap('handleLeft', null, []);
+            module.handleRight = module.cwrap('handleRight', null, []);
+            module.handleSelect = module.cwrap('handleSelect', null, []);
+            module.handleBack = module.cwrap('handleBack', null, []);
             
+            status.textContent = 'Ready! Press SPACE to start...';
+            status.className = 'ready';
+            
+            // Wait for space key to initialize
+            const initHandler = (e) => {
+                if (e.code === 'Space' && !initialized) {
+                    initialized = true;
+                    document.removeEventListener('keydown', initHandler);
+                    
+                    status.textContent = 'Initializing game engine...';
+                    status.className = 'loading';
+                    
+                    // Call setup
+                    setup();
+                    
+                    // Get framebuffer information
+                    framebufferPtr = getFramebufferPointer();
+                    width = getWidth();
+                    height = getHeight();
+                    pixelSize = Math.floor(canvas.width / width);
+                    
+                    status.textContent = 'Game ready! Select a game: 0=Snake, 1=Galaxia, 2=Tetris';
+                    status.className = 'ready';
+                    
+                    // Start the render loop
+                    requestAnimationFrame(render);
+                }
+            };
+            
+            document.addEventListener('keydown', initHandler);
             status.textContent = 'Ready! Display active.';
             status.className = 'ready';
             
             // Start the render loop
+            function render() {
+
+                // If not initialized yet, schedule next frame and return
+                if (!initialized) {
+                    requestAnimationFrame(render);
+                    return;
+                }
+
+                if (framebufferPtr && module.HEAPU8) {
+                    // Call the loop function
+                    loop();
+                    
+                    // Read framebuffer and render to canvas
+                    const framebuffer = new Uint8Array(
+                        module.HEAPU8.buffer,
+                        framebufferPtr,
+                        width * height * 3
+                    );
+
+                    // Draw pixels
+                    for (let y = 0; y < height; y++) {
+                        for (let x = 0; x < width; x++) {
+                            const idx = (y * width + x) * 3;
+                            const r = framebuffer[idx];
+                            const g = framebuffer[idx + 1];
+                            const b = framebuffer[idx + 2];
+                            
+                            ctx.fillStyle = `rgb(${r},${g},${b})`;
+                            ctx.fillRect(y * pixelSize, x * pixelSize, pixelSize, pixelSize);
+                        }
+                    }
+                }
+                
+                requestAnimationFrame(render);
+            }
+            
             requestAnimationFrame(render);
         }).catch((err) => {
             status.textContent = 'Error loading WASM: ' + err;
             status.className = 'error';
             console.error(err);
         });
-        
-        // Render loop
-        function render() {
-            if (module && framebufferPtr) {
-                // Call the loop function
-                module.loop();
-                
-                // Read framebuffer and render to canvas
-                const framebuffer = new Uint8Array(
-                    module.HEAPU8.buffer,
-                    framebufferPtr,
-                    width * height * 3
-                );
-                
-                // Draw pixels
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        const idx = (y * width + x) * 3;
-                        const r = framebuffer[idx];
-                        const g = framebuffer[idx + 1];
-                        const b = framebuffer[idx + 2];
-                        
-                        ctx.fillStyle = `rgb(${r},${g},${b})`;
-                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-                    }
-                }
-            }
-            
-            requestAnimationFrame(render);
-        }
         
         // Button controls
         document.getElementById('up').addEventListener('click', () => module?.handleUp());

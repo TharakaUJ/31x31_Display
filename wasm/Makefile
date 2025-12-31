@@ -9,14 +9,15 @@ BUILD_DIR = build
 DIST_DIR = dist
 
 # Compiler flags
-CXXFLAGS = -std=c++11 -O3 -Wall
+CXXFLAGS = -std=c++17 -O3 -Wall
 EMSCRIPTEN_FLAGS = -s WASM=1 \
                    -s ALLOW_MEMORY_GROWTH=1 \
-                   -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
+                   -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","HEAPU8"]' \
                    -s MODULARIZE=1 \
                    -s EXPORT_NAME="DisplayModule" \
                    -s ENVIRONMENT=web \
-                   --bind
+                   -s ASYNCIFY=1 \
+                   -s ASYNCIFY_STACK_SIZE=65536
 
 # Include paths
 INCLUDES = -I. -I$(COMMON_DIR) -I$(GAMES_DIR)
@@ -31,7 +32,9 @@ GAME_SOURCES = $(GAMES_DIR)/snake.cpp \
                $(GAMES_DIR)/galaxia.cpp
 
 WASM_SOURCES = main.cpp \
-               controllerEndpoints.cpp
+               controllerEndpoints.cpp \
+               platform.cpp \
+               FastLED.cpp
 
 ALL_SOURCES = $(COMMON_SOURCES) $(GAME_SOURCES) $(WASM_SOURCES)
 

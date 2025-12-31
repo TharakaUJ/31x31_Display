@@ -1,5 +1,6 @@
 #include "display.h"
 #include "displayNumbers.h"
+#include "platform.h"
 
 const uint8_t digitFont[10][7] = {
     {0b01110, 0b10001, 0b10011, 0b10101, 0b11001, 0b10001, 0b01110}, // 0
@@ -41,4 +42,21 @@ void drawCenteredTwoDigitNumber(int value, CRGB color) {
 
     drawDigit(tens, startX, startY, color);
     drawDigit(units, startX + digitWidth + spacing, startY, color);
+}
+
+void drawCenteredThreeDigitNumber(int value, CRGB color) {
+    value = constrain(value, 0, 999);
+    int hundreds = value / 100;
+    int tens = (value / 10) % 10;
+    int units = value % 10;
+
+    int digitWidth = 5;
+    int spacing = 1;
+    int totalWidth = digitWidth * 3 + spacing * 2;
+    int startX = (WIDTH - totalWidth) / 2;
+    int startY = (HEIGHT - 7) / 2;
+
+    drawDigit(hundreds, startX, startY, color);
+    drawDigit(tens, startX + digitWidth + spacing, startY, color);
+    drawDigit(units, startX + 2 * (digitWidth + spacing), startY, color);
 }

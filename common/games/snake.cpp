@@ -2,7 +2,9 @@
 #include "controllerEndpoints.h"
 #include "displayNumbers.h"
 #include "menu.h"
+#include "platform.h"
 #include <vector>
+#include <cstdlib>
 
 enum Direction
 {
@@ -27,8 +29,8 @@ void spawnFood()
 {
     while (true)
     {
-        food.x = random(0, WIDTH);
-        food.y = random(0, HEIGHT);
+        food.x = rand() % WIDTH;
+        food.y = rand() % HEIGHT;
         bool collision = false;
         for (auto s : snake)
         {
@@ -153,7 +155,7 @@ void runSnakeGame()
         {
             commandFlags[CMD_BACK] = false;
             menu_init();
-            vTaskDelete(NULL);
+            platformDeleteCurrentThread();
             return;
         }
 
@@ -171,16 +173,22 @@ void runSnakeGame()
             // Display score
             drawCenteredTwoDigitNumber(score, CRGB::White);
         }
-        vTaskDelay(pdMS_TO_TICKS(std::max(100, 500 - score * 20))); // Game speed constrained to 100
+        platformDelay(std::max(100, 500 - score * 20)); // Game speed constrained to 100
     }
 }
 
 void setupSnakeGame()
 {
-    xTaskCreatePinnedToCore(
+    score = 0;
+
+    createThread(
+        "SnakeGameTask",
         [](void *)
         {
             runSnakeGame();
         },
-        "SnakeGame", 4096, NULL, 1, NULL, 1);
+        nullptr,
+        4096,  // Stack size
+        1      // Priority
+    );
 }

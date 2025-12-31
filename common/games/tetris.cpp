@@ -3,6 +3,7 @@
 #include "displayNumbers.h"
 #include "tetris.h"
 #include "menu.h"
+#include "platform.h"
 #include <vector>
 #include <cstdlib>
 
@@ -190,7 +191,7 @@ void runTetrisGame()
         {
             commandFlags[CMD_BACK] = false;
             menu_init();
-            vTaskDelete(NULL);
+            platformDeleteCurrentThread();
             return;
         }
 
@@ -225,16 +226,20 @@ void runTetrisGame()
         }
 
         tickTetris++;
-        vTaskDelay(pdMS_TO_TICKS(100));
+        platformDelay(100);
     }
 }
 
 void setupTetrisGame()
 {
-    xTaskCreatePinnedToCore(
+    createThread(
+        "TetrisGameTask",
         [](void *)
         {
             runTetrisGame();
         },
-        "TetrisGame", 4096, NULL, 1, NULL, 1);
+        nullptr,
+        4096,  // Stack size
+        1      // Priority
+    );
 }
