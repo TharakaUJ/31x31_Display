@@ -1,0 +1,75 @@
+name: Build and Deploy WASM
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'wasm/**'
+      - 'common/**'
+      - '.github/workflows/wasm-build.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'wasm/**'
+      - 'common/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 'latest'
+    
+    - name: Verify Emscripten installation
+      run: |
+        emcc --version
+        em++ --version
+    
+    - name: Build WASM
+      run: |
+        cd wasm
+        make
+    
+    - name: Prepare deployment
+      run: |
+        mkdir -p deploy
+        cp wasm/index.html deploy/
+        cp -r wasm/dist deploy/
+        # Create a simple 404 page
+        echo '<!DOCTYPE html><html><head><title>404</title></head><body><h1>Page not found</h1><a href="/">Go home</a></body></html>' > deploy/404.html
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./deploy
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

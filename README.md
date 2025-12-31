@@ -1,6 +1,6 @@
 # 🐍 ESP32 LED Snake Game
 
-A modular Snake game running on an ESP32 with a 31×31 LED matrix. This project supports multiple games, a display simulator via Wi-Fi, and modular input/output separation.
+A modular Snake game running on an ESP32 with a 31×31 LED matrix. This project supports multiple games, a display simulator via Wi-Fi, and modular input/output separation. **Now also available as WebAssembly!** 🌐
 
 ---
 
@@ -12,6 +12,7 @@ A modular Snake game running on an ESP32 with a 31×31 LED matrix. This project 
 - **HTTP simulator** to view the LED grid on a browser.
 - **Control via external endpoints** (UP, DOWN, LEFT, RIGHT, SELECT, BACK).
 - **Modular architecture** for supporting additional games and menus.
+- **WebAssembly build** - Run the display in any modern web browser! See [wasm/README.md](wasm/README.md) for details.
 
 ---
 
@@ -38,16 +39,43 @@ A modular Snake game running on an ESP32 with a 31×31 LED matrix. This project 
 ## 📁 Project Structure
 
 ```plaintext
-src/
-├── display.h / .cpp         # LED framebuffer and update logic
-├── controllerEndpoints.h    # Memory-mapped control input flags
-├── snakeGame.cpp            # Main game logic
-├── displayNumbers.cpp        # 2-digit number renderer
+common/              # Shared game logic across platforms
+├── display.cpp/h         # LED framebuffer and update logic
+├── displayNumbers.cpp/h  # Number rendering utilities
+├── menu.cpp/h            # Menu system
+└── games/               # Game implementations
+    ├── snake.cpp/h
+    ├── tetris.cpp/h
+    └── galaxia.cpp/h
+esp32/               # ESP32-specific implementation
+├── esp32.ino
+├── controllerEndpoints.cpp/h
+├── webserve.cpp/h
+└── htmlFiles.h
+wasm/                # WebAssembly build (play in browser!)
+├── main.cpp
+├── FastLED.h        # Mock FastLED for WASM
+├── Makefile
+└── index.html
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture information.
 
 ---
 
-## 🌐 Web-Based Simulator
+## 🌐 WebAssembly Build
+
+**Play in your browser!** The entire display and game logic has been ported to WebAssembly.
+
+- **Live demo**: Available via GitHub Pages (see [wasm/README.md](wasm/README.md))
+- **Local build**: `cd wasm && make`
+- **Features**: Full game support with keyboard/button controls
+
+For detailed instructions on building and deploying, see **[wasm/README.md](wasm/README.md)**.
+
+---
+
+## 🌐 Web-Based Simulator (ESP32)
 
 ### HTTP Endpoint
 
