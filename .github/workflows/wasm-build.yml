@@ -2,7 +2,7 @@ name: Build and Deploy WASM
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, wasm ]
     paths:
       - 'wasm/**'
       - 'common/**'

@@ -16,6 +16,8 @@ EMSCRIPTEN_FLAGS = -s WASM=1 \
                    -s MODULARIZE=1 \
                    -s EXPORT_NAME="DisplayModule" \
                    -s ENVIRONMENT=web \
+                   -s ASYNCIFY=1 \
+                   -s ASYNCIFY_STACK_SIZE=65536 \
                    --bind
 
 # Include paths
@@ -31,7 +33,9 @@ GAME_SOURCES = $(GAMES_DIR)/snake.cpp \
                $(GAMES_DIR)/galaxia.cpp
 
 WASM_SOURCES = main.cpp \
-               controllerEndpoints.cpp
+               controllerEndpoints.cpp \
+               platform.cpp \
+               FastLED.cpp
 
 ALL_SOURCES = $(COMMON_SOURCES) $(GAME_SOURCES) $(WASM_SOURCES)
 

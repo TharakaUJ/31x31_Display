@@ -5,6 +5,7 @@
 #include "galaxia.h"
 #include "display.h"
 #include "tetris.h"
+#include "platform.h"
 
 void menu_loop()
 {
@@ -41,31 +42,35 @@ void menu_loop()
             {
             case 0:
                 setupSnakeGame();
-                vTaskDelete(NULL);
+                platformDeleteCurrentThread();
                 break;
             case 1:
                 setupGalaxiaGame();
-                vTaskDelete(NULL);
+                platformDeleteCurrentThread();
                 break;
             case 2:
                 setupTetrisGame();
-                vTaskDelete(NULL);
+                platformDeleteCurrentThread();
                 break;
             default:
                 break;
             }
             break;
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        platformDelay(100);
     }
 }
 
 void menu_init()
 {
-    xTaskCreatePinnedToCore(
+    createThread(
+        "MenuTask",
         [](void *)
         {
             menu_loop();
         },
-        "menu_loop", 4096, NULL, 1, NULL, 1);
+        nullptr,
+        4096,  // Stack size
+        1      // Priority
+    );
 }

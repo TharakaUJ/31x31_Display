@@ -1,12 +1,12 @@
 #include "display.h"
+#include "platform.h"
 
 CRGB leds[NUM_LEDS];
 CRGB framebuffer[WIDTH][HEIGHT];
 
 void initDisplay()
 {
-    FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
-    FastLED.setBrightness(50); // Scale as needed to prevent power issues
+    platformInitDisplay();
 }
 
 // Maps 2D coordinates to 1D index in a serpentine layout
@@ -34,7 +34,7 @@ void renderFrameToLEDs()
             leds[index] = framebuffer[x][y];
         }
     }
-    FastLED.show();
+    platformShowDisplay();
 }
 
 void setupDisplay()
@@ -42,16 +42,20 @@ void setupDisplay()
     initDisplay();
 
     // Optional: start display task
-    xTaskCreatePinnedToCore(
+    createThread(
+        "DisplayTask",
         [](void *)
         {
             while (true)
             {
                 renderFrameToLEDs();
-                vTaskDelay(pdMS_TO_TICKS(33)); // ~30FPS
+                platformDelay(33); // ~30FPS
             }
         },
-        "DisplayTask", 2048, NULL, 1, NULL, 1);
+        nullptr,
+        2048,  // Stack size
+        1      // Priority
+    );
 }
 
 void clearFramebuffer()

@@ -4,6 +4,7 @@
 #include <vector>
 #include "galaxia.h"
 #include "menu.h"
+#include "platform.h"
 #include <cstdlib>
 
 struct Point
@@ -141,7 +142,7 @@ void runGalaxiaGame()
         {
             commandFlags[CMD_BACK] = false;
             menu_init();
-            vTaskDelete(NULL);
+            platformDeleteCurrentThread();
             return;
         }
 
@@ -163,7 +164,7 @@ void runGalaxiaGame()
         }
 
         tickCount++;
-        vTaskDelay(pdMS_TO_TICKS(100));
+        platformDelay(100);
     }
 }
 
@@ -172,10 +173,15 @@ void setupGalaxiaGame()
 
     scoreGalaxia = 0;
 
-    xTaskCreatePinnedToCore(
+    createThread(
+        "GalaxiaGameTask",
         [](void *)
         {
             runGalaxiaGame();
         },
-        "GalaxiaGame", 4096, NULL, 1, NULL, 1);
+        nullptr,
+        4096,  // Stack size
+        1      // Priority
+    );
+    
 }
