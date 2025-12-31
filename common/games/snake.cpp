@@ -4,6 +4,7 @@
 #include "menu.h"
 #include "platform.h"
 #include <vector>
+#include <cstdlib>
 
 enum Direction
 {
@@ -28,8 +29,8 @@ void spawnFood()
 {
     while (true)
     {
-        food.x = random(0, WIDTH);
-        food.y = random(0, HEIGHT);
+        food.x = rand() % WIDTH;
+        food.y = rand() % HEIGHT;
         bool collision = false;
         for (auto s : snake)
         {

@@ -1,11 +1,8 @@
 #include <emscripten.h>
-#include <emscripten/bind.h>
 #include "../common/display.h"
+#include "../common/displayNumbers.h"
 #include "../common/menu.h"
 #include "controllerEndpoints.h"
-
-// Framebuffer for WASM - matches the common display interface
-CRGB framebuffer[WIDTH][HEIGHT];
 
 // Export framebuffer pointer for JavaScript access
 extern "C" {
@@ -25,8 +22,7 @@ extern "C" {
     }
     
     EMSCRIPTEN_KEEPALIVE
-    void setup() {
-        setupDisplay();
+    void menu() {
         menu_init();
     }
     
@@ -67,21 +63,11 @@ extern "C" {
     void handleBack() {
         back();
     }
-}
 
-// Emscripten bindings (alternative to extern "C" for more complex types)
-using namespace emscripten;
+    EMSCRIPTEN_KEEPALIVE
+    void displayThreeDigitNumber(int value) {
+        drawCenteredThreeDigitNumber(value, CRGB::Blue);
+    }
 
-EMSCRIPTEN_BINDINGS(display_module) {
-    function("setup", &setup);
-    function("loop", &loop);
-    function("getFramebufferPointer", &getFramebufferPointer, allow_raw_pointers());
-    function("getWidth", &getWidth);
-    function("getHeight", &getHeight);
-    function("handleUp", &handleUp);
-    function("handleDown", &handleDown);
-    function("handleLeft", &handleLeft);
-    function("handleRight", &handleRight);
-    function("handleSelect", &handleSelect);
-    function("handleBack", &handleBack);
+
 }
