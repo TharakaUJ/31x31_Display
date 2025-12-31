@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>31x31 LED Display - WASM</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        #canvas {
+            border: 2px solid #333;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 10px;
+        }
+        
+        .btn {
+            background: #333;
+            border: 2px solid #555;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+            border-radius: 5px;
+        }
+        
+        .btn:hover {
+            background: #444;
+            border-color: #777;
+        }
+        
+        .btn:active {
+            background: #555;
+            transform: scale(0.95);
+        }
+        
+        #up { grid-column: 2; grid-row: 1; }
+        #left { grid-column: 1; grid-row: 2; }
+        #select { grid-column: 2; grid-row: 2; background: #4CAF50; border-color: #45a049; }
+        #right { grid-column: 3; grid-row: 2; }
+        #down { grid-column: 2; grid-row: 3; }
+        #back { grid-column: 1; grid-row: 3; background: #f44336; border-color: #da190b; }
+        
+        #status {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .loading {
+            color: #ffeb3b;
+        }
+        
+        .ready {
+            color: #4CAF50;
+        }
+        
+        .error {
+            color: #f44336;
+        }
+        
+        #info {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 31x31 LED Display</h1>
+    <div id="container">
+        <canvas id="canvas" width="620" height="620"></canvas>
+        
+        <div id="controls">
+            <button class="btn" id="up">▲</button>
+            <button class="btn" id="left">◄</button>
+            <button class="btn" id="select">SEL</button>
+            <button class="btn" id="right">►</button>
+            <button class="btn" id="down">▼</button>
+            <button class="btn" id="back">BACK</button>
+        </div>
+        
+        <div id="status" class="loading">Loading WASM module...</div>
+        
+        <div id="info">
+            Use arrow keys or click buttons to control
+        </div>
+    </div>
+
+    <script src="dist/display.js"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        
+        let module = null;
+        let framebufferPtr = null;
+        let width = 31;
+        let height = 31;
+        let pixelSize = 20;
+        
+        // Initialize the WASM module
+        DisplayModule().then((Module) => {
+            module = Module;
+            
+            // Call setup
+            module.setup();
+            
+            // Get framebuffer information
+            framebufferPtr = module.getFramebufferPointer();
+            width = module.getWidth();
+            height = module.getHeight();
+            
+            status.textContent = 'Ready! Display active.';
+            status.className = 'ready';
+            
+            // Start the render loop
+            requestAnimationFrame(render);
+        }).catch((err) => {
+            status.textContent = 'Error loading WASM: ' + err;
+            status.className = 'error';
+            console.error(err);
+        });
+        
+        // Render loop
+        function render() {
+            if (module && framebufferPtr) {
+                // Call the loop function
+                module.loop();
+                
+                // Read framebuffer and render to canvas
+                const framebuffer = new Uint8Array(
+                    module.HEAPU8.buffer,
+                    framebufferPtr,
+                    width * height * 3
+                );
+                
+                // Draw pixels
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const idx = (y * width + x) * 3;
+                        const r = framebuffer[idx];
+                        const g = framebuffer[idx + 1];
+                        const b = framebuffer[idx + 2];
+                        
+                        ctx.fillStyle = `rgb(${r},${g},${b})`;
+                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                    }
+                }
+            }
+            
+            requestAnimationFrame(render);
+        }
+        
+        // Button controls
+        document.getElementById('up').addEventListener('click', () => module?.handleUp());
+        document.getElementById('down').addEventListener('click', () => module?.handleDown());
+        document.getElementById('left').addEventListener('click', () => module?.handleLeft());
+        document.getElementById('right').addEventListener('click', () => module?.handleRight());
+        document.getElementById('select').addEventListener('click', () => module?.handleSelect());
+        document.getElementById('back').addEventListener('click', () => module?.handleBack());
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!module) return;
+            
+            switch(e.key) {
+                case 'ArrowUp': module.handleUp(); e.preventDefault(); break;
+                case 'ArrowDown': module.handleDown(); e.preventDefault(); break;
+                case 'ArrowLeft': module.handleLeft(); e.preventDefault(); break;
+                case 'ArrowRight': module.handleRight(); e.preventDefault(); break;
+                case 'Enter': module.handleSelect(); e.preventDefault(); break;
+                case 'Escape': module.handleBack(); e.preventDefault(); break;
+            }
+        });
+    </script>
+</body>
+</html>

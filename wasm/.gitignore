@@ -1,0 +1,17 @@
+# Build artifacts
+build/
+dist/
+
+# WASM output files
+*.wasm
+*.js
+*.js.mem
+*.data
+
+# Backup files
+*.bak
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
