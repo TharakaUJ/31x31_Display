@@ -1,5 +1,6 @@
 #include "display.h"
 #include "displayNumbers.h"
+#include "platform.h"
 
 const uint8_t digitFont[10][7] = {
     {0b01110, 0b10001, 0b10011, 0b10101, 0b11001, 0b10001, 0b01110}, // 0
