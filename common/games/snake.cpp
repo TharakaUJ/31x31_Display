@@ -23,26 +23,46 @@ std::vector<Point> snake;
 Point food;
 Direction dir = RIGHT;
 bool gameOver = false;
+bool gameWon = false;
 int score = 0;
 
-void spawnFood()
+// Places food on a random free cell. Returns false if the snake fills the
+// whole board and there is nowhere left to put it.
+bool spawnFood()
 {
-    while (true)
+    static bool occupied[WIDTH][HEIGHT];
+    for (int x = 0; x < WIDTH; x++)
+        for (int y = 0; y < HEIGHT; y++)
+            occupied[x][y] = false;
+
+    int freeCells = WIDTH * HEIGHT;
+    for (auto &s : snake)
     {
-        food.x = rand() % WIDTH;
-        food.y = rand() % HEIGHT;
-        bool collision = false;
-        for (auto s : snake)
+        if (!occupied[s.x][s.y])
         {
-            if (s.x == food.x && s.y == food.y)
+            occupied[s.x][s.y] = true;
+            freeCells--;
+        }
+    }
+
+    if (freeCells <= 0)
+        return false;
+
+    // Pick the n-th free cell so this always terminates
+    int n = rand() % freeCells;
+    for (int x = 0; x < WIDTH; x++)
+    {
+        for (int y = 0; y < HEIGHT; y++)
+        {
+            if (!occupied[x][y] && n-- == 0)
             {
-                collision = true;
-                break;
+                food.x = x;
+                food.y = y;
+                return true;
             }
         }
-        if (!collision)
-            break;
     }
+    return false;
 }
 
 void updateDirection()
@@ -66,7 +86,8 @@ void drawSnake()
     clearFramebuffer();
     for (auto &s : snake)
         framebuffer[s.x][s.y] = CRGB::Green;
-    framebuffer[food.x][food.y] = CRGB::Red;
+    if (!gameWon)
+        framebuffer[food.x][food.y] = CRGB::Red;
 }
 
 void gameTick()
@@ -129,8 +150,14 @@ void gameTick()
 
     if (newHead.x == food.x && newHead.y == food.y)
     {
-        spawnFood(); // Grow
+        // Grow
         score++;
+        if (!spawnFood())
+        {
+            // Snake fills the board: player wins
+            gameWon = true;
+            gameOver = true;
+        }
         if (score > 99)
             score = 99; // Limit score to 2 digits
     }
@@ -147,6 +174,7 @@ void runSnakeGame()
     snake = {{15, 15}, {14, 15}, {13, 15}};
     dir = RIGHT;
     gameOver = false;
+    gameWon = false;
     spawnFood();
 
     while (true)
@@ -165,10 +193,10 @@ void runSnakeGame()
         }
         else
         {
-            // Show game over visual
+            // Show game over visual (green if the board was filled)
             for (int i = 0; i < WIDTH; i++)
                 for (int j = 0; j < HEIGHT; j++)
-                    framebuffer[i][j] = CRGB::Red;
+                    framebuffer[i][j] = gameWon ? CRGB::Green : CRGB::Red;
 
             // Display score
             drawCenteredTwoDigitNumber(score, CRGB::White);
