@@ -3,4 +3,4 @@
 void setupSnakeGame();
 void gameTick();
 void runSnakeGame();
-void spawnFood();
+bool spawnFood();
